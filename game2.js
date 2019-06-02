@@ -26,6 +26,7 @@ const ctx = cvs.getContext("2d");
 
 let key = {up:false, left:false, right:false, down:false, spacebar:false};
 
+let gameOver = false;
 
 var tBlock = [
   [
@@ -266,61 +267,30 @@ Piece.prototype.moveDown = function() {
 	} else {
 		this.lock();
 		randomTetrisPiece = randomPiece();
-		console.log("collided");
-		
 	}
 }
 
-document.addEventListener("keydown", function(event) {
-	switch(event.keyCode) {
-		case 32:
-			key.spacebar = true;
-			break;
-		case 37:
-			key.left = true;
-			//randomTetrisPiece.moveLeft();
-			break;
-		case 38:
-			//up
-			randomTetrisPiece.rotate();
-			break;
-		case 39:
-			key.right = true;
-			//randomTetrisPiece.moveRight();
-			break;
-		case 40:
-			
-			dropStart = Date.now();
-			key.down = true;
-			//randomTetrisPiece.moveDown();
-			break;
+Piece.prototype.instantDrop = function() {
+	this.unDraw();
+	while(!this.collision(0,1,this.activeTetrispieceState)) {
+		this.y++;
 	}
-});
+	this.draw();
+	this.lock();
+	randomTetrisPiece = randomPiece();
+	/*
+	if(!this.collision(0,1,this.activeTetrispieceState)) {
+		this.unDraw();
+		this.y++;
+		this.draw();
+	} else {
+		this.lock();
+		randomTetrisPiece = randomPiece();
+		console.log("collided");
+		
+	}*/
+}
 
-
-document.addEventListener("keyup", function(event) {
-	switch(event.keyCode) {
-		case 37:
-			key.left = false;
-			//randomTetrisPiece.moveLeft();
-			break;
-		case 38:
-			key.up = false;
-			//randomTetrisPiece.rotate();
-			console.log("up");
-			break;
-		case 39:
-			key.right = false;
-			//randomTetrisPiece.moveRight();
-			break;
-		case 40:
-			
-			dropStart = Date.now();
-			key.down = false;
-			//randomTetrisPiece.moveDown();
-			break;
-	}
-});
 
 
 Piece.prototype.moveLeft = function() {
@@ -392,6 +362,64 @@ Piece.prototype.collision = function(px,py,piece) {
 	return false;
 	
 }
+
+
+document.addEventListener("keydown", function(event) {
+	
+	if(gameOver) { return 0;}
+	switch(event.keyCode) {
+		case 32:
+		console.log("here");
+			randomTetrisPiece.instantDrop();
+			break;
+		case 37:
+			key.left = true;
+			//randomTetrisPiece.moveLeft();
+			break;
+		case 38:
+			//up
+			randomTetrisPiece.rotate();
+			break;
+		case 39:
+			key.right = true;
+			//randomTetrisPiece.moveRight();
+			break;
+		case 40:
+			
+			dropStart = Date.now();
+			key.down = true;
+			//randomTetrisPiece.moveDown();
+			break;
+	}
+});
+
+
+document.addEventListener("keyup", function(event) {
+	switch(event.keyCode) {
+		case 37:
+			key.left = false;
+			//randomTetrisPiece.moveLeft();
+			break;
+		case 38:
+			key.up = false;
+			//randomTetrisPiece.rotate();
+			console.log("up");
+			break;
+		case 39:
+			key.right = false;
+			//randomTetrisPiece.moveRight();
+			break;
+		case 40:
+			
+			dropStart = Date.now();
+			key.down = false;
+			//randomTetrisPiece.moveDown();
+			break;
+	}
+});
+
+
+
 let keyInputStart = Date.now();
 
 let move = function() {
@@ -412,42 +440,57 @@ let move = function() {
 	
 };
 
+function gameOverScreen() {
+	ctx.save();
+	ctx.fillStyle = '#000';
+	
+	ctx.globalAlpha = 0.2;
+	ctx.fillRect(0,0,200,400);
+	ctx.globalAlpha = 1.0;
+	ctx.fillStyle = '#fff';
+	ctx.font = "30px Arial";
+	ctx.fillText("Game OVER", 20, 200);
+	
+}
 
 Piece.prototype.lock = function(){
-    for( r = 0; r < this.activeTetrispieceState.length; r++){
-        for(c = 0; c < this.activeTetrispieceState.length; c++){
+    for( y = 0; y < this.activeTetrispieceState.length; y++){
+        for(x = 0; x < this.activeTetrispieceState.length; x++){
             // we skip the vacant squares
-            if( !this.activeTetrispieceState[r][c]){
+            if( !this.activeTetrispieceState[y][x]){
                 continue;
             }
             // pieces to lock on top = game over
-            if(this.y + r < 0){
-                alert("Game Over");
-                // stop request animation frame
+            if(this.y + y < 0){
+				
                 gameOver = true;
+				requestAnimationFrame(gameOverScreen());
+				
+                // stop request animation frame
+				console.log("gaME OVER");
                 break;
             }
             // we lock the piece
-            tetrisField[this.y+r][this.x+c] = this.color;
+            tetrisField[this.y+y][this.x+x] = this.color;
         }
     }
     // remove full rows
-    for(r = 0; r < 20; r++){
+    for(y = 0; y < 20; y++){
         let isRowFull = true;
-        for( c = 0; c < 10; c++){
-            isRowFull = isRowFull && (tetrisField[r][c] != 0);
+        for(x = 0; x < 10; x++){
+            isRowFull = isRowFull && (tetrisField[y][x] != 0);
         }
         if(isRowFull){
             // if the row is full
             // we move down all the rows above it
             for( y = r; y > 1; y--){
-                for( c = 0; c < 10; c++){
-                    tetrisField[y][c] = tetrisField[y-1][c];
+                for( x = 0; x < 10; x++){
+                    tetrisField[y][x] = tetrisField[y-1][x];
                 }
             }
             // the top row board[0][..] has no row above it
-            for( c = 0; c < 10; c++){
-                tetrisField[0][c] = 0;
+            for( x = 0; x < 10; x++){
+                tetrisField[0][x] = 0;
             }
             // increment the score
             //score += 10;
@@ -463,7 +506,6 @@ Piece.prototype.lock = function(){
 
 let dropStart = Date.now();
 
-let gameOver = false;
 function drop(){
     let now = Date.now();
     let delta = now - dropStart;
