@@ -369,7 +369,6 @@ document.addEventListener("keydown", function(event) {
 	if(gameOver) { return 0;}
 	switch(event.keyCode) {
 		case 32:
-		console.log("here");
 			randomTetrisPiece.instantDrop();
 			break;
 		case 37:
@@ -464,7 +463,7 @@ Piece.prototype.lock = function(){
             if(this.y + y < 0){
 				
                 gameOver = true;
-				requestAnimationFrame(gameOverScreen());
+				requestAnimationFrame(gameOverScreen);
 				
                 // stop request animation frame
 				console.log("gaME OVER");
