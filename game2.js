@@ -281,9 +281,8 @@ document.addEventListener("keydown", function(event) {
 			//randomTetrisPiece.moveLeft();
 			break;
 		case 38:
-			key.up = true;
-			//randomTetrisPiece.rotate();
-			console.log("up");
+			//up
+			randomTetrisPiece.rotate();
 			break;
 		case 39:
 			key.right = true;
@@ -403,9 +402,9 @@ let move = function() {
 	if(deltaKey> 40) {
 		if (key.left) {randomTetrisPiece.moveLeft();}
 		if (key.right) {randomTetrisPiece.moveRight();}
-		if (key.up) {
-		  randomTetrisPiece.rotate();
-		}
+	//	if (key.up) {
+		//  randomTetrisPiece.rotate();
+		//}
 		if (key.down) {randomTetrisPiece.moveDown()}
 		
 		keyInputStart = Date.now();
