@@ -483,7 +483,7 @@ Piece.prototype.lock = function(){
         if(isRowFull){
             // if the row is full
             // we move down all the rows above it
-            for( y = r; y > 1; y--){
+            for( y = y; y > 1; y--){
                 for( x = 0; x < 10; x++){
                     tetrisField[y][x] = tetrisField[y-1][x];
                 }
